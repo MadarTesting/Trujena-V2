@@ -1,0 +1,188 @@
+# مشروع أتمتة تروجينا (Trujena Automation)
+
+مشروع **Playwright + TypeScript** بيختبر موقع تروجينا على بيئة staging:
+
+| الموقع | الرابط |
+|---|---|
+| موقع التاجر (لوحة التحكم) | https://stg.trujena.com |
+| موقع الأدمن | https://admin.stg.trujena.com |
+
+المشروع فيه **90 تست** في **9 ملفات**، بتغطي رحلة الطلب كاملة (الأدمن والتاجر) وكل صفحات لوحة تحكم التاجر.
+
+---
+
+## 1. التجهيز أول مرة
+```
+npm install
+copy .env.example .env        (على ويندوز)   أو   cp .env.example .env
+```
+بعد كده اكتب بياناتك في ملف `.env`:
+
+| المتغير | معناه |
+|---|---|
+| `MERCHANT_URL` / `ADMIN_URL` | رابط موقع التاجر وموقع الأدمن |
+| `MERCHANT_EMAIL` / `MERCHANT_PASSWORD` | حساب التاجر اللي التستات بتشتغل بيه |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | حساب الأدمن |
+
+> **ملحوظة:** التستات بتشتغل على **Google Chrome المتسطب على الجهاز** (`channel: 'chrome'`)، لأن Windows Application Control بيمنع الـ Chromium اللي Playwright بينزّله. فمش محتاج `npx playwright install`، بس لازم Chrome يكون متسطب.
+
+---
+
+## 2. التشغيل
+
+### كل التستات
+```
+npm test                       كل التستات (من غير ما المتصفح يظهر)
+npm run test:headed            كل التستات والمتصفح ظاهر
+```
+
+### موديول واحد
+| الأمر | الموديول |
+|---|---|
+| `npm run test:smoke` | اللوجين الصح + الرحلة الكاملة |
+| `npm run test:lifecycle` | رحلة الطلب (أدمن + تاجر) |
+| `npm run test:design` | إعدادات التصميم |
+| `npm run test:plugins` | الإضافات والإعلانات |
+| `npm run test:notifications` | إدارة الإشعارات |
+| `npm run test:support` | الدعم والتواصل |
+| `npm run test:subscription` | اشتراكي |
+| `npm run test:profile` | الملف الشخصي |
+| `npm run test:logout` | تسجيل الخروج |
+
+عشان تشغّل ملف واحد والمتصفح ظاهر:
+```
+npx playwright test tests/profile.spec.ts --headed
+```
+
+### التقارير
+```
+npm run report               تقرير Playwright (HTML)
+npm run allure:generate      يعمل تقرير Allure
+npm run allure:open          يفتح تقرير Allure
+```
+> لو شغّلت بـ `--reporter=list`، نتايج Allure **مش هتتسجل**. عشان يطلع تقرير Allure شغّل من غير `--reporter`.
+
+---
+
+## 3. شكل المشروع
+```
+trujina-automation-v2/
+├── tests/                  التستات (ملف لكل موديول)
+├── pages/                  الـ Page Objects (كل صفحة ليها ملف فيه الـ locators والـ methods)
+│   ├── POManager.ts        بيجمع كل الصفحات في مكان واحد
+│   ├── auth/               صفحة الدخول (مشتركة بين التاجر والأدمن)
+│   ├── admin/              صفحات الأدمن
+│   └── merchant/           صفحات التاجر
+├── testData/               الداتا اللي التستات بتستخدمها (Data-Driven)
+│   └── files/              الملفات اللي بتترفع في التستات (صور، APK، AAB)
+├── requirements/           الريكوايرمنت بتاعة كل صفحة (اسم الملف = اسم الـ page)
+├── fixtures/fixtures.ts    متصفح للأدمن، ومتصفح للتاجر، ورقم الطلب
+├── global/                 global-setup (لوجين مرة واحدة) و global-teardown
+├── playwright.config.ts    إعدادات التشغيل
+└── .env                    الإيميلات والباسوردات (مش بيترفع على git)
+```
+
+### القاعدة اللي ماشيين عليها
+كل موديول ليه **3 ملفات**:
+
+| الملف | مكانه | مثال |
+|---|---|---|
+| الصفحة (locators + methods) | `pages/merchant/` | `MerchantProfilePage.ts` |
+| التستات | `tests/` | `profile.spec.ts` |
+| الداتا | `testData/` | `profile.ts` |
+
+ولو الموديول ليه ريكوايرمنت بتبقى في `requirements/` بنفس اسم الصفحة، زي `MerchantProfilePage.md`.
+
+---
+
+## 4. الصفحات (pages)
+
+### auth
+| الملف | الشغل بتاعه |
+|---|---|
+| `LoginPage.ts` | فورم الدخول (نفسها للتاجر والأدمن) |
+
+### admin
+| الملف | الشغل بتاعه |
+|---|---|
+| `AdminRequestPage.ts` | تفاصيل الطلب وتغيير حالته |
+| `AdminConfigPage.ts` | إعدادات التطبيق ورفع ملفات APK/AAB |
+| `AdminPublishPage.ts` | روابط المتاجر وقت النشر |
+
+### merchant
+| الملف | الصفحة في الموقع |
+|---|---|
+| `MerchantAppPage.ts` | إدارة التطبيق (رقم الطلب، الحالة، روابط المتاجر) |
+| `MerchantReviewPage.ts` | مراجعة التطبيق (طلب تعديل / تأكيد النشر) |
+| `MerchantDesignSettingsPage.ts` | إعدادات التصميم |
+| `MerchantPluginsAdsPage.ts` | الإضافات والإعلانات (إعلانات، واتساب، سياسة الخصوصية) |
+| `MerchantNotificationsPage.ts` | إدارة الإشعارات (مسودات وإرسال) |
+| `MerchantSupportPage.ts` | الدعم والتواصل |
+| `MerchantSubscriptionPage.ts` | اشتراكي |
+| `MerchantProfilePage.ts` | الملف الشخصي (تعديل الاسم والصورة، تغيير الباسورد) |
+| `MerchantLogoutPage.ts` | تسجيل الخروج |
+
+التستات بتوصل للصفحات عن طريق `POManager`، مثلًا:
+```ts
+const profile = merchantPO.getMerchantProfilePage();
+```
+
+---
+
+## 5. التستات (tests)
+| الملف | عدد التستات | بيختبر إيه |
+|---|---|---|
+| `login.spec.ts` | 15 | دخول صح، باسورد غلط، إيميل مش متسجل، فورم ناقصة (data-driven) |
+| `lifecycle.spec.ts` | 4 | رحلة الطلب: جديد ← مراجعة ← قيد التنفيذ ← جاهز للمراجعة ← طلب تعديل ← النشر |
+| `designSettings.spec.ts` | 3 | تغيير كل تابات التصميم والحفظ، ورفض لينك من برا المتجر |
+| `pluginsAds.spec.ts` | 17 | إضافة/تعديل/تكرار/حذف إعلان، أيقونة الواتساب، سياسة الخصوصية |
+| `notifications.spec.ts` | 10 | المسودات (حفظ/تعديل/حذف)، الأخطاء، الإرسال |
+| `support.spec.ts` | 7 | فورم الدعم، الأخطاء، الإرسال، قاعدة "طلب كل 5 دقايق" |
+| `subscription.spec.ts` | 5 | بيانات الاشتراك، الحالة، الأيام المتبقية، مفيش زرار تجديد، وبيطبع البيانات في التيرمنال |
+| `profile.spec.ts` | 21 | الشريط العلوي، تعديل الاسم والصورة، تغيير الباسورد (data-driven)، الخروج |
+| `logout.spec.ts` | 8 | نافذة التأكيد، الرجوع، تأكيد، مفيش دخول لأي صفحة بعد الخروج (data-driven) |
+
+### أسماء التستات
+- `[Positive]`: السيناريو الصح.
+- `[Negative]`: داتا غلط، أو زرار رجوع، أو business rule المفروض يمنع حاجة.
+- `[Alternative]`: الـ alternative flow اللي في الريكوايرمنت.
+
+### التستات اللي متقفلة
+| الحالة | معناها |
+|---|---|
+| `test.fixme` | مش هينفع يتعمل دلوقتي (محتاج طلب تاني، أو الريكوايرمنت مش محددة) |
+| `SEND_NOTIFICATIONS=yes` | تستات **إرسال إشعار حقيقي** للمستخدمين، مش بتشتغل غير لو طلبتها |
+| `CHANGE_PASSWORD=yes` | تست **بيغيّر باسورد التاجر فعلًا**، مش بيشتغل غير لو طلبته |
+
+مثال (في Git Bash):
+```
+SEND_NOTIFICATIONS=yes npx playwright test tests/notifications.spec.ts --headed
+```
+
+---
+
+## 6. الأفكار المستخدمة بلغة بسيطة
+| الاسم | يعني إيه | فين في المشروع |
+|---|---|---|
+| **POM** | كل صفحة ليها ملف فيه أزرارها والحاجات اللي بتتعمل فيها | `pages/` |
+| **POManager** | مكان واحد بيرجّعلك أي صفحة | `pages/POManager.ts` |
+| **Data-Driven** | الداتا في ملفات لوحدها، والتست بيلف عليها (لو عايز حالة جديدة تزودها في الداتا بس) | `testData/` |
+| **Fixtures** | `merchantPO` متصفح التاجر، `adminPO` متصفح الأدمن، `requestNumber` رقم الطلب | `fixtures/fixtures.ts` |
+| **Global Setup** | بيعمل لوجين مرة واحدة قبل كل التستات ويحفظ الجلسة | `global/global-setup.ts` |
+| **Global Teardown** | بيمسح ملفات الجلسات المحفوظة بس (**مفيش داتا بتتمسح من السيستم**) | `global/global-teardown.ts` |
+| **SEEN** | كلمة جنب الـ locator أو الداتا، معناها إنها اتشافت على الموقع الحقيقي | في الكود |
+
+---
+
+## 7. حاجات مهمة لازم تعرفها
+- **التستات بتشتغل واحد ورا واحد** (`workers: 1`)، لأن كلها بتستخدم نفس حساب التاجر ونفس الطلب.
+- **مفيش retry** (`retries: 0`)، لأن الإعادة ممكن تحاول تغيّر حالة اتغيرت خلاص.
+- **رحلة الطلب (lifecycle):** بعد ما تخلص، الطلب بيبقى "تم النشر". عشان تشغّلها تاني من الأول لازم **تاجر جديد**، تحط بياناته في `.env`.
+- **الإعلانات والإشعارات:** التستات بتعمل داتا جديدة باسم فيه رقم مختلف كل مرة (`runId`) عشان تبقى سهلة تلاقيها، وبتمسح الحاجات المؤقتة اللي عملتها.
+- **الملف الشخصي:** تست تغيير الاسم بيرجّع الاسم القديم في الآخر، والباسورد **مش بيتغير** غير لو شغّلت بـ `CHANGE_PASSWORD=yes`.
+- **تسجيل الخروج:** كل تست خروج بيعمل دخول في متصفح جديد، عشان ما يقفلش الجلسة اللي التستات التانية شغالة بيها.
+- **رفع الصور على staging بطيء** (أحيانًا أكتر من دقيقة)، عشان كده تستات الصور ليها timeout أطول.
+- **لو التست فشل** هتلاقي screenshot وفيديو و trace في `test-results/`. عشان تفتح الـ trace:
+  ```
+  npx playwright show-trace test-results/<اسم التست>/trace.zip
+  ```

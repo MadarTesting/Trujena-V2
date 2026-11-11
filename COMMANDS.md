@@ -1,0 +1,173 @@
+# أوامر التشغيل
+
+انسخ الأمر والصقه في التيرمنال، وأنت جوه فولدر المشروع.
+
+- `--headed` = المتصفح يظهر قدامك. لو شلته، التستات تشتغل من غير ما تشوف المتصفح.
+- في آخر الـ run بيطلع **TEST REPORT** في التيرمنال: عدد الـ PASSED والـ FAILED والـ SKIPPED وأسماء التستات. وكل تست فشل بيبقى جنبه مكان الـ screenshot والفيديو بتوعه.
+- بعد كده تقرير HTML بيفتح في المتصفح لوحده. **سيب التيرمنال شغال وإنت بتتفرج على التقرير**: الصور والفيديوهات بتتحمّل منه، ولو قفلته بتظهر فاضية. لما تخلص اضغط `Ctrl + C`.
+- لو قفلته وعايز التقرير تاني: `npx playwright show-report`
+- لو مش عايز التقرير يفتح، حط الأمر ده الأول (PowerShell): `$env:PW_TEST_HTML_REPORT_OPEN="never";`
+- أي API بيبعت داتا (إضافة أو تعديل أو مسح) بيتطبع في التيرمنال: الـ request والـ status code والـ payload والـ preview. لو مش عايزه، حط الأمر ده الأول: `$env:API_LOG="no";`
+
+---
+
+## كل التستات
+```
+npx playwright test --headed
+```
+
+## الدخول (login)
+```
+npx playwright test tests/login.spec.ts --headed
+```
+
+## رحلة الطلب (lifecycle)
+```
+npx playwright test tests/lifecycle.spec.ts --headed
+```
+
+## إعدادات التصميم
+```
+npx playwright test tests/designSettings.spec.ts --headed
+```
+
+## الإضافات والإعلانات
+```
+npx playwright test tests/pluginsAds.spec.ts --headed
+```
+
+## إدارة الإشعارات
+```
+npx playwright test tests/notifications.spec.ts --headed
+```
+
+## الدعم والتواصل
+```
+npx playwright test tests/support.spec.ts --headed
+```
+
+## اشتراكي
+```
+npx playwright test tests/subscription.spec.ts --headed
+```
+
+## الملف الشخصي
+```
+npx playwright test tests/profile.spec.ts --headed
+```
+
+## تسجيل الخروج
+```
+npx playwright test tests/logout.spec.ts --headed
+```
+
+## إدارة العملاء (الأدمن)
+```
+npx playwright test tests/adminCustomers.spec.ts --headed
+```
+
+## إدارة الطلبات (الأدمن)
+بيغيّر حالة طلب عميل التست بس (الطلبات التانية محمية).
+```
+npx playwright test tests/adminOrders.spec.ts --headed
+```
+
+## إدارة الإشعارات (الأدمن)
+بيبعت إشعار للتاجر بتاع التست بس (QA Customer 853019 edited) ويشوفه عنده في أيقونة الإشعارات.
+```
+npx playwright test tests/adminNotifications.spec.ts --headed
+```
+
+## الدعم والتواصل (الأدمن)
+التاجر بيبعت **رسالة دعم جديدة** كل run، والأدمن بيغيّر حالة الرسالة دي بس لـ "تم الاطلاع" (الرسايل التانية محمية).
+⚠️ التاجر مسموحله رسالة واحدة كل 5 دقايق: استنى 5 دقايق بين كل run والتاني (وبين tests/support.spec.ts).
+```
+npx playwright test tests/adminSupport.spec.ts --headed
+```
+
+## إدارة المستخدمين (الأدمن)
+بيعمل **مستخدم تست جديد** كل run (QA User ...) ويجرب عليه (دخول، تغيير باسورد، تعطيل) ويمسحه في الآخر. المستخدمين التانيين محميين.
+```
+npx playwright test tests/adminUsers.spec.ts --headed
+```
+
+## الأدوار والصلاحيات (الأدمن)
+بيعمل **دور تست جديد** كل run (QA Role ...) ويجرب عليه ويمسحه في الآخر. الأدوار التانية محمية ومحدش بيتغير.
+```
+npx playwright test tests/adminRoles.spec.ts --headed
+```
+
+## سجل النشاطات (الأدمن)
+عرض بس: بيقرا السجل ويجرب البحث والفلاتر، ومش بيغير أي حاجة.
+```
+npx playwright test tests/adminActivityLog.spec.ts --headed
+```
+
+## إضافة عميل وتجربة السيناريوهات عليه (الأدمن)
+⚠️ كل run بيضيف **عميل QA جديد** في الداشبورد (العملاء التانيين محميين ومحدش بيتغير).
+```
+npx playwright test tests/adminAddCustomer.spec.ts --headed
+```
+
+---
+
+## التستات المقفولة (محتاجة موافقة)
+
+### إرسال إشعار حقيقي للمستخدمين
+PowerShell (التيرمنال العادي في VS Code):
+```
+$env:SEND_NOTIFICATIONS="yes"; npx playwright test tests/notifications.spec.ts --headed; Remove-Item Env:SEND_NOTIFICATIONS
+```
+Git Bash:
+```
+SEND_NOTIFICATIONS=yes npx playwright test tests/notifications.spec.ts --headed
+```
+
+### تغيير باسورد التاجر فعلًا
+PowerShell:
+```
+$env:CHANGE_PASSWORD="yes"; npx playwright test tests/profile.spec.ts --headed; Remove-Item Env:CHANGE_PASSWORD
+```
+Git Bash:
+```
+CHANGE_PASSWORD=yes npx playwright test tests/profile.spec.ts --headed
+```
+
+---
+
+## أوامر تانية مفيدة
+
+### تشغيل تست واحد بس (بجزء من اسمه)
+```
+npx playwright test tests/profile.spec.ts --headed -g "wrong current password"
+```
+
+### تشغيل تست واحد بس (برقم السطر بتاعه في الملف)
+```
+npx playwright test tests/logout.spec.ts:32 --headed
+```
+
+### إعادة التستات اللي فشلت في آخر run بس
+```
+npx playwright test --last-failed --headed
+```
+
+### عرض أسماء التستات من غير ما تشغّلها
+```
+npx playwright test --list
+```
+
+### التقارير
+تقرير Playwright:
+```
+npx playwright show-report
+```
+تقرير Allure:
+```
+npm run allure:generate; npm run allure:open
+```
+
+### فتح الـ trace بتاع تست فشل
+```
+npx playwright show-trace test-results/<اسم فولدر التست>/trace.zip
+```
