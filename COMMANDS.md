@@ -22,6 +22,8 @@ npx playwright test tests/login.spec.ts --headed
 ```
 
 ## رحلة الطلب (lifecycle)
+كل run الأدمن بيضيف **تاجر QA جديد** من إدارة العملاء (QA Lifecycle ...) وطلبه بيبدأ "جديد"، فتقدر تشغّله كل مرة.
+وبيضيف تاجر تاني (QA LcReject ...) لتست الرفض. الطلبات التانية محمية، ومفيش حاجة بتتمسح.
 ```
 npx playwright test tests/lifecycle.spec.ts --headed
 ```
@@ -101,6 +103,18 @@ npx playwright test tests/adminRoles.spec.ts --headed
 عرض بس: بيقرا السجل ويجرب البحث والفلاتر، ومش بيغير أي حاجة.
 ```
 npx playwright test tests/adminActivityLog.spec.ts --headed
+```
+
+## الملف الشخصي (الأدمن)
+عرض بس: بيفتح الصفحة والنوافذ ويقفلها من غير حفظ. أي طلب بيغيّر داتا بيتقفل، فالاسم والباسورد والإيميل زي ما هم.
+```
+npx playwright test tests/adminProfile.spec.ts --headed
+```
+
+## تسجيل الخروج (الأدمن)
+كل تست بيعمل دخول جديد في متصفح لوحده ويخرج منه، فالجلسة المحفوظة للتستات التانية ما بتتأثرش. مفيش داتا بتتغير.
+```
+npx playwright test tests/adminLogout.spec.ts --headed
 ```
 
 ## إضافة عميل وتجربة السيناريوهات عليه (الأدمن)

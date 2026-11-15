@@ -18,6 +18,7 @@ import { AdminSupportPage } from './admin/AdminSupportPage';
 import { AdminActivityLogPage } from './admin/AdminActivityLogPage';
 import { AdminRolesPage } from './admin/AdminRolesPage';
 import { AdminUsersPage } from './admin/AdminUsersPage';
+import { AdminProfilePage } from './admin/AdminProfilePage';
 
 // بيجمع كل الصفحات في مكان واحد، والتست بياخد منه الصفحة اللي محتاجها
 export class POManager {
@@ -41,6 +42,7 @@ export class POManager {
     private readonly adminActivityLogPage: AdminActivityLogPage;
     private readonly adminRolesPage: AdminRolesPage;
     private readonly adminUsersPage: AdminUsersPage;
+    private readonly adminProfilePage: AdminProfilePage;
 
     //===================Constructor===================
     constructor(page: Page) {
@@ -64,6 +66,7 @@ export class POManager {
         this.adminActivityLogPage = new AdminActivityLogPage(this.page);
         this.adminRolesPage = new AdminRolesPage(this.page);
         this.adminUsersPage = new AdminUsersPage(this.page);
+        this.adminProfilePage = new AdminProfilePage(this.page);
     }
 
     //===================Methods===================
@@ -113,6 +116,10 @@ export class POManager {
 
     getAdminNotificationsPage() {
         return this.adminNotificationsPage;
+    }
+
+    getAdminProfilePage() {
+        return this.adminProfilePage;
     }
 
     getAdminUsersPage() {

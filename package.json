@@ -20,6 +20,8 @@
     "test:activity-log": "playwright test --grep @adminActivityLog",
     "test:roles": "playwright test --grep @adminRoles",
     "test:users": "playwright test --grep @adminUsers",
+    "test:admin-profile": "playwright test --grep @adminProfile",
+    "test:admin-logout": "playwright test --grep @adminLogout",
     "test:headed": "playwright test --headed",
     "report": "playwright show-report",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
