@@ -31,8 +31,15 @@ jobs:
       # 4. بيسطب Google Chrome (التستات بتستخدم channel: 'chrome')
       - run: npx playwright install --with-deps chrome
 
-      # 5. بيشغّل التستات (الإيميلات والباسوردات من ملف .env اللي في الريبو)
+      # 5. بيشغّل التستات (الإيميلات والباسوردات من GitHub Secrets، مش من ملف في الريبو)
       - run: npx playwright test ${{ github.event.inputs.tests }}
+        env:
+          MERCHANT_URL: ${{ secrets.MERCHANT_URL }}
+          ADMIN_URL: ${{ secrets.ADMIN_URL }}
+          MERCHANT_EMAIL: ${{ secrets.MERCHANT_EMAIL }}
+          MERCHANT_PASSWORD: ${{ secrets.MERCHANT_PASSWORD }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
       # 6. بيرفع الريبورت (الصور والفيديوهات) عشان تنزّله من صفحة الـ run
       - uses: actions/upload-artifact@v4
