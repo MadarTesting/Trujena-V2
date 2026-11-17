@@ -7,7 +7,8 @@
 - بعد كده تقرير HTML بيفتح في المتصفح لوحده. **سيب التيرمنال شغال وإنت بتتفرج على التقرير**: الصور والفيديوهات بتتحمّل منه، ولو قفلته بتظهر فاضية. لما تخلص اضغط `Ctrl + C`.
 - لو قفلته وعايز التقرير تاني: `npx playwright show-report`
 - لو مش عايز التقرير يفتح، حط الأمر ده الأول (PowerShell): `$env:PW_TEST_HTML_REPORT_OPEN="never";`
-- أي API بيبعت داتا (إضافة أو تعديل أو مسح) بيتطبع في التيرمنال: الـ request والـ status code والـ payload والـ preview. لو مش عايزه، حط الأمر ده الأول: `$env:API_LOG="no";`
+- التيرمنال بيطبع التستات اللي فشلت بس، وتحت كل واحد الـ APIs بتاعته: الـ request والـ status code والـ payload والـ preview.
+  لو عايز تشوف كل API بيبعت داتا وقت ما التستات شغالة، حط الأمر ده الأول: `$env:API_LOG="yes";`
 
 ---
 
@@ -82,7 +83,7 @@ npx playwright test tests/adminNotifications.spec.ts --headed
 
 ## الدعم والتواصل (الأدمن)
 التاجر بيبعت **رسالة دعم جديدة** كل run، والأدمن بيغيّر حالة الرسالة دي بس لـ "تم الاطلاع" (الرسايل التانية محمية).
-⚠️ التاجر مسموحله رسالة واحدة كل 5 دقايق: استنى 5 دقايق بين كل run والتاني (وبين tests/support.spec.ts).
+التاجر مسموحله رسالة واحدة كل 5 دقايق: لو شغّلته تاني بسرعة، أول تست بيستنى ويحاول كل دقيقة (لحد 6 دقايق) وبعدين يكمل عادي.
 ```
 npx playwright test tests/adminSupport.spec.ts --headed
 ```
@@ -126,16 +127,6 @@ npx playwright test tests/adminAddCustomer.spec.ts --headed
 ---
 
 ## التستات المقفولة (محتاجة موافقة)
-
-### إرسال إشعار حقيقي للمستخدمين
-PowerShell (التيرمنال العادي في VS Code):
-```
-$env:SEND_NOTIFICATIONS="yes"; npx playwright test tests/notifications.spec.ts --headed; Remove-Item Env:SEND_NOTIFICATIONS
-```
-Git Bash:
-```
-SEND_NOTIFICATIONS=yes npx playwright test tests/notifications.spec.ts --headed
-```
 
 ### تغيير باسورد التاجر فعلًا
 PowerShell:

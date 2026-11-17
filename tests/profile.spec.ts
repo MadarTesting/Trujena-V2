@@ -65,6 +65,7 @@ test.describe('Merchant - profile: edit', { tag: '@profile' }, () => {
         const profile = merchantPO.getMerchantProfilePage();
 
         await profile.open();
+        const oldName = (await profile.topBarName_lbl.innerText()).trim();     // الاسم الحالي (بيرجع في الآخر)
         try {
             await profile.saveName(profileData.newName);
             await profile.page.reload();
@@ -73,7 +74,7 @@ test.describe('Merchant - profile: edit', { tag: '@profile' }, () => {
         } finally {
             // put the old name back
             await profile.open();
-            await profile.saveName(profileData.account.name);
+            await profile.saveName(oldName);
         }
     });
 

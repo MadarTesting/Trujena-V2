@@ -88,4 +88,30 @@ export default {
     errors: {
         required: 'مطلوب',               // ADJUST: part of the error text, the full text is not checked yet
     },
+
+    // ---------- الرسايل (requirements/MerchantPluginsAdspage.md) ----------
+    // SEEN on stg = النص في الموقع مختلف عن الريكوايرمنت (الريكوايرمنت في التعليق)
+    messages: {
+        created: 'تمت إضافة الإعلان بنجاح',      // SEEN on stg (الريكوايرمنت: "تم إنشاء الإعلان بنجاح")
+        saved: 'تم حفظ التغييرات بنجاح',          // SEEN on stg: التفعيل والتعديل (الريكوايرمنت: "تم تفعيل الإعلان بنجاح")
+        deleted: 'تم حذف الإعلان بنجاح',
+        fieldRequired: 'يرجى ملىء هذا الحقل!',   // SEEN on stg: رسالة كل خانة فاضية
+        bigImage: 'حجم الصورة كبير',              // SEEN on stg (الريكوايرمنت: "حجم الصورة يجب ألا يتجاوز 5 ميجا")
+        noAds: 'لا توجد إعلانات بعد',               // SEEN on stg (الريكوايرمنت: "لا توجد إعلانات حاليا")
+        saveFailed: 'تعذر حفظ إعدادات أيقونة واتساب', // SEEN on stg (الريكوايرمنت: "حدث خطأ أثناء حفظ البيانات")
+        activeAdWarning: 'هذا الإعلان مفعل حاليا',
+        maxActive: 'لا يمكن تفعيل اكثر من 3 اعلانات',
+    },
+    // رقم واتساب غلط (أقل من 9 أرقام)
+    invalidPhone: '123',
+    // لينك ظهور من برا دومين المتجر
+    outsideLink: 'https://example.com/qa-page',
+    // أسامي إعلانات حالات الريكوايرمنت
+    caseAdNames: {
+        inactive: `QA New Ad ${runId}`,
+        activeEdit: `QA Active Edit ${runId}`,
+        activeDelete: `QA Active Delete ${runId}`,
+        duplicate: `QA Copy Ad ${runId}`,
+        limit: (n: number) => `QA Limit Ad ${n} ${runId}`,
+    },
 };

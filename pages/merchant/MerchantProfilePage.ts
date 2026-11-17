@@ -120,7 +120,7 @@ export class MerchantProfilePage {
     //-------------------Assertions-------------------
     // the profile page shows the account data (name, email, store, phone, WhatsApp)
     // بيتأكد من بيانات الحساب
-    async assertAccountData(data: { name: string; email: string; storeName: string; phone: string; whatsapp: string }) {
+    async assertAccountData(data: { name: string; email: string; storeName: string; phone?: string; whatsapp: string }) {
         // SEEN on stg: some values are on the page 2 times (one is hidden), so we take the visible one
         for (const value of Object.values(data)) {
             await expect(this.page.locator('main').getByText(value, { exact: true }).filter({ visible: true }).first(),

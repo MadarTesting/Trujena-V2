@@ -5,7 +5,7 @@ import type { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
 // بيطبع ملخص PASSED / FAILED / SKIPPED في آخر الـ run
 class SummaryReporter implements Reporter {
     passed: string[] = [];
-    failed: { name: string; error: string; types: string[]; files: string[] }[] = [];
+    failed: { name: string; error: string; types: string[]; files: string[]; apiCalls: string[] }[] = [];
     skipped: string[] = [];
 
     // بعد كل تست: بيحطه في القايمة الصح
@@ -22,7 +22,20 @@ class SummaryReporter implements Reporter {
             const files = result.attachments.filter(a => a.path).map(a => `${a.name}: ${a.path}`);
             // Frontend ولا Backend (اتحطت في التقرير من fixtures/closeWindow)
             const types = (result.annotations ?? []).filter(a => a.type.startsWith('Failure type')).map(a => a.description ?? '');
-            this.failed.push({ name, error, types, files });
+            // الـ APIs اللي فشلت بس (❌ = status 400 أو أكتر) من utils/apiLogger.ts
+            // كل الـ APIs (حتى اللي نجحت) موجودة في الـ HTML report
+            const apiCalls = result.attachments
+                .filter(a => a.name.endsWith('-api-calls') && a.body)
+                .map(a => {
+                    const allCalls = a.body!.toString('utf8').split(/\n(?=┌)/).filter(block => block.startsWith('┌'));
+                    const failedCalls = allCalls.filter(block => block.includes('❌'));
+                    // بيطبع الـ APIs اللي فشلت بس (الـ endpoint + الـ status + الـ payload + الـ response)
+                    return failedCalls.length
+                        ? `  ── ${a.name}: the failed APIs ──\n${failedCalls.join('\n')}`
+                        : `  ── ${a.name}: كل الـ APIs نجحت (${allCalls.length} API)، فالمشكلة في الصفحة نفسها (شوف الـ screenshot) ──`;
+                });
+            this.failed.push({ name, error, types, files, apiCalls });
+            console.log(`  ❌ FAILED: ${name}`);        // وقت ما يفشل، والتفاصيل في الملخص في الآخر
         }
     }
 
@@ -35,10 +48,7 @@ class SummaryReporter implements Reporter {
         console.log(`  SKIPPED: ${this.skipped.length}`);
         console.log(`  TOTAL  : ${this.passed.length + this.failed.length + this.skipped.length}`);
 
-        if (this.passed.length) {
-            console.log(`\n---------- PASSED (${this.passed.length}) ----------`);
-            this.passed.forEach(name => console.log(`  ✅ ${name}`));
-        }
+        // PASSED و SKIPPED: العدد بس (فوق)، الأسامي في الـ HTML report
         if (this.failed.length) {
             console.log(`\n---------- FAILED (${this.failed.length}) ----------`);
             this.failed.forEach(t => {
@@ -46,17 +56,15 @@ class SummaryReporter implements Reporter {
                 console.log(`       error: ${t.error}`);
                 t.types.forEach(type => console.log(`       type : ${type}`));
                 t.files.forEach(file => console.log(`       ${file}`));
+                t.apiCalls.forEach(calls => console.log(calls.split('\n').map(row => `       ${row}`).join('\n')));
+                console.log('');
             });
-        }
-        if (this.skipped.length) {
-            console.log(`\n---------- SKIPPED (${this.skipped.length}) ----------`);
-            this.skipped.forEach(name => console.log(`  ⏸️ ${name}`));
         }
         console.log(`\n  full report (screenshots + videos): npx playwright show-report\n${line}\n`);
     }
 
     printsToStdio() {
-        return false;     // so the "list" reporter still prints the tests while they run
+        return true;      // this is the only reporter that prints in the terminal
     }
 }
 

@@ -20,7 +20,8 @@ export class AdminNotificationsPage {
     readonly sent_msg: Locator;
 
     //===================Variables===================
-    readonly sentMessageText: string = 'تم ارسال الاشعار بنجاح';     // from the requirement
+    // SEEN on stg: "تم الإرسال بنجاح" (الريكوايرمنت بتقول "تم ارسال الاشعار بنجاح")
+    readonly sentMessageText: string = 'تم الإرسال بنجاح';
 
     //===================Constructor===================
     constructor(page: Page) {

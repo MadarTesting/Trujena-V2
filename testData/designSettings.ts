@@ -1,36 +1,29 @@
-// data for merchant > إعدادات التصميم
-// a unique number for every run, so the new values are always different from the saved ones
-const runId = Date.now().toString().slice(-6);
+// data for merchant > إعدادات التصميم (requirements/MerchantDesignSetting.md = UC-7)
+const runId = process.env.RUN_ID ?? Date.now().toString().slice(-6);     // رقم مختلف كل run
 
-// a color from the run number, for example "#3A1F9C" (always 6 hex digits)
-function colorFromRun(offset: number): string {
+// لون من رقم الـ run (عشان يبقى مختلف كل مرة)، مثلا "#3A1F9C"
+function color(offset: number) {
     const value = (Number(runId) * 7919 + offset * 104729) % 0xffffff;
     return `#${value.toString(16).padStart(6, '0').toUpperCase()}`;
 }
 
 export default {
-    splash: {
-        backgroundColor: colorFromRun(1),
-    },
-    colors: {
-        backgroundColor: colorFromRun(2),
-        iconsColor: colorFromRun(3),
-    },
-    // tab "شريط التنقل والأيقونات" (all fields are required to save the page)
-    // SEEN on stg: the link must be the store link of the merchant ("رابط المتجر"),
-    // other links are rejected: "يجب أن يشير الرابط إلى نطاق رابط التطبيق"
-    // so the test reads the store link and uses it as the link
+    // الأقسام اللي في الريكوايرمنت
+    tabs: ['صفحة البداية', 'الصفحات الترحيبية', 'الألوان', 'شريط التنقل والأيقونات', 'القائمة الجانبية'],
+
+    // التصميم الأول
+    colors: { backgroundColor: color(1), iconsColor: color(2) },
+    // آخر تصميم (بيتحفظ بعد الأول، وهو اللي لازم يظهر)
+    lastColors: { backgroundColor: color(3), iconsColor: color(4) },
+    // المعاينة (مش بتتحفظ)
+    previewColors: { backgroundColor: '#FF0000', iconsColor: '#00FF00' },
+
+    // الأيقونات (مطلوبة عشان الحفظ يشتغل)
     icons: [
         { picker: 0, key: 'mainFeatureIcons.icon1', name: `QA Icon ${runId}` },
         { picker: 1, key: 'secondaryFeatureIcons.salla', name: `QA Cart ${runId}` },
     ],
-    welcomePage1: {
-        title: `QA عنوان ${runId}`,
-        subtitle: `QA عنوان فرعي ${runId}`,
-    },
-    sideMenuSection1: {
-        name: `QA Section ${runId}`,
-    },
-    // negative: a link that is NOT on the store domain
+
+    // لينك من برا دومين المتجر (بيترفض)
     outsideStoreLink: 'https://example.com/qa-page',
 };

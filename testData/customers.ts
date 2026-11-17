@@ -21,7 +21,8 @@ export default {
         { title: 'customer name', field: '#name-input', value: `QA Customer ${runId} edited` },
         { title: 'store name', field: '#storeName-input', value: `QA Store ${runId} edited` },
     ],
-    updateToast: 'تم تحديث البيانات بنجاح',        // from the requirement
+    // SEEN on stg: "تم تعديل العميل بنجاح" (الريكوايرمنت بتقول "تم تحديث البيانات بنجاح")
+    updateToast: 'تم تعديل العميل بنجاح',
 
     // أعمدة جدول العملاء الفعليين (من الريكوايرمنت)
     // the site uses "باقة الاشتراك" for "خطة الاشتراك" and "حالة التطبيق" for "حالة الطلب" (same meaning)

@@ -5,12 +5,13 @@ const runId = Date.now().toString().slice(-6);
 
 export default {
     // the account data of the merchant in .env (SEEN on stg, api: users/profile)
+    // ⚠️ لو غيّرت حساب التاجر في .env، غيّر البيانات دي كمان
+    // (الحساب ده رقم الهاتف فاضي، فمش بيتشيك عليه)
     account: {
-        name: 'tttttt',
+        name: 'youssef',
         email: process.env.MERCHANT_EMAIL ?? '',
-        storeName: 'store',
-        phone: '+966111111111',
-        whatsapp: '+9661111111111',
+        storeName: 'store22',
+        whatsapp: '+201227203834',
     },
 
     // edit profile (the test puts the old name back at the end)

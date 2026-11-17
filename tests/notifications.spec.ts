@@ -130,14 +130,13 @@ test.describe('Merchant - notifications management', { tag: '@notifications' }, 
     });
 });
 
-//===================Send (OFF by default)===================
-// IMPORTANT: "إرسال الإشعار" sends a REAL push notification to ALL the users of the merchant app,
-// and the website allows only ONE notification every 4 hours (after it, nobody can send for 4 hours).
-// So these tests run only when you ask for it:  SEND_NOTIFICATIONS=yes npx playwright test --grep @notifications
-// تستات الإرسال الحقيقي (بتشتغل بس مع SEND_NOTIFICATIONS=yes)
+//===================Send===================
+// IMPORTANT: "إرسال الإشعار" بيبعت push notification حقيقي لكل مستخدمين تطبيق التاجر،
+// والموقع بيسمح بإشعار واحد بس كل 4 ساعات:
+// - لو فيه إشعار اتبعت من أقل من 4 ساعات، تست "إرسال الآن" بيتعمله skip (مش fail)
+// - التستين التانيين بيشتغلوا دايمًا
+// تستات الإرسال الحقيقي
 test.describe('Merchant - notifications management: send', { tag: '@notifications' }, () => {
-    test.describe.configure({ mode: 'serial' });
-    test.skip(process.env.SEND_NOTIFICATIONS !== 'yes', 'sends a real notification (1 every 4 hours): set SEND_NOTIFICATIONS=yes to run it');
 
     // إرسال الآن: الإشعار بيظهر في المرسلة
     test('[Positive] send now: it is in the sent list and NOT in the drafts', async ({ merchantPO, requestNumber }) => {
@@ -149,6 +148,9 @@ test.describe('Merchant - notifications management: send', { tag: '@notification
         await notifications.startNewNotification();
         await notifications.fillNotification({ ...data, destination: storeLink });
         const response = await notifications.send();
+        // قاعدة الـ 4 ساعات: فيه إشعار اتبعت قريب، فمينفعش نبعت دلوقتي
+        test.skip(!response.ok() && /4/.test(await response.text()),
+            `a notification was sent less than 4 hours ago: ${await response.text()}`);
         expect(response.ok(), `send failed with status ${response.status()}: ${await response.text()}`).toBeTruthy();
 
         await notifications.open();
@@ -172,13 +174,13 @@ test.describe('Merchant - notifications management: send', { tag: '@notification
         await notifications.assertNotInList(notifications.tabs.sent, data.title);
     });
 
-    // الإشعار المرسل مينفعش يتعدل أو يتمسح
+    // الإشعار المرسل مينفعش يتعدل أو يتمسح (أول إشعار في "المرسلة")
     test('[Negative] business rule: a sent notification cannot be edited or deleted', async ({ merchantPO }) => {
         const notifications = merchantPO.getMerchantNotificationsPage();
 
         await notifications.open();
         await notifications.openTab(notifications.tabs.sent);
-        await expect(notifications.row(notificationData.sent.title)).toHaveCount(1);
-        await expect(notifications.rowDeleteButton(notificationData.sent.title)).toHaveCount(0);
+        await expect(notifications.rows.first(), 'there is no sent notification to check').not.toContainText(notificationData.emptyListText);
+        await expect(notifications.rows.first().locator('button:has(svg[class*="text-red"])')).toHaveCount(0);
     });
 });

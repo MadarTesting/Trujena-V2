@@ -129,12 +129,22 @@ export class MerchantPluginsAdsPage {
         await this.page.goto(paths.merchantHomePath);
         await this.pluginsAds_lnk.click();
         await expect(this.page).toHaveURL(new RegExp(paths.pluginsAdsPath));
-        await expect(this.addAd_btn.or(this.Save_btn)).toBeVisible();
+        await expect(this.addAd_btn.or(this.Save_btn)).toBeVisible({ timeout: 30000 });   // SEEN on stg: sometimes slow
     }
 
     // بيفتح تاب
+    // SEEN on stg: تاب الواتساب وسياسة الخصوصية بيفتحوا والـ switch مقفول، وبعد ثانية الإعدادات
+    // بتيجي من السيرفر وتغيّره. فبنستنى الإعدادات الأول، عشان التست ما يدوسش على الـ switch قبلها
     async openTab(tabName: string) {
-        await this.main.getByRole('button', { name: tabName, exact: true }).click();
+        const tab = this.main.getByRole('button', { name: tabName, exact: true });
+        if (tabName === this.tabs.ads) {
+            await tab.click();
+            return;
+        }
+        const settingsLoaded = this.page.waitForResponse(r => /whatsapp-settings|privacy/.test(r.url()), { timeout: 10000 })
+            .catch(() => {});                                // لو كانت جت قبل كده، نكمل
+        await tab.click();
+        await settingsLoaded;
     }
 
     // بيعمل reload للصفحة
@@ -273,6 +283,32 @@ export class MerchantPluginsAdsPage {
 
     // SEEN on stg: a popup "هل أنت متأكد من حذف الإعلان؟" with "حذف" / "الرجوع"
     // بيمسح إعلان (أو يدوس الرجوع)
+    // بيمسح كل إعلانات التست (اسمها بيبدأ بـ "QA")، عشان خطة الاشتراك ليها حد أقصى للإعلانات
+    async deleteTestAds() {
+        await this.open();
+        await this.openTab(this.tabs.ads);
+        await expect(this.addAd_btn).toBeVisible();
+        await this.page.waitForTimeout(2000);                // لحد ما قايمة الإعلانات تتحمل
+        const names = await this.main.getByRole('heading').filter({ hasText: /^QA/ }).allInnerTexts();
+        for (const name of new Set(names.map(n => n.trim()))) {
+            while (await this.adCard(name).count()) {        // ممكن يكون فيه أكتر من إعلان بنفس الاسم (تكرار)
+                await this.deleteAd(name);
+            }
+        }
+    }
+
+    // بيمسح كل الإعلانات (مسموح في الإضافات والإعلانات بس): عشان "لا توجد إعلانات" وحد التفعيل
+    async deleteAllAds() {
+        await this.openAdsList();
+        await this.page.waitForTimeout(2000);                // لحد ما قايمة الإعلانات تتحمل
+        const deleteButtons = this.main.locator('[data-slot="alert-dialog-trigger"]');
+        for (let i = 0; i < 30 && await deleteButtons.count(); i++) {
+            await deleteButtons.first().click();
+            await this.saveAndCheck(this.deleteDialog.getByRole('button', { name: 'حذف' }));
+            await expect(this.deleteDialog).toBeHidden();
+        }
+    }
+
     async deleteAd(adName: string, confirm = true) {
         await this.adDeleteButton(adName).click();
         await expect(this.deleteDialog).toContainText('هل أنت متأكد من حذف الإعلان؟');
@@ -384,6 +420,11 @@ export class MerchantPluginsAdsPage {
         await this.openTab(this.tabs.privacy);
         await expect(this.enabled_switch).toHaveAttribute('aria-checked', 'true');
         await expect(this.privacyEditor).toContainText(text);
+    }
+
+    // بيتأكد من رسالة (toast) بتظهر بعد العملية
+    async assertMessage(text: string) {
+        await expect(this.page.locator('[data-sonner-toast]').filter({ hasText: text }).first()).toBeVisible();
     }
 
     // بيتأكد من رسالة الخطأ

@@ -1,6 +1,6 @@
-// data for merchant > الدعم والتواصل
+// data for merchant > الدعم والتواصل (requirements/MerchantSupportPage.md)
 // a unique number for every run, so every request is easy to find on the admin side
-const runId = Date.now().toString().slice(-6);
+const runId = process.env.RUN_ID ?? Date.now().toString().slice(-6);
 
 export default {
     // a valid request (the merchant can change the prefilled name / phone / email)

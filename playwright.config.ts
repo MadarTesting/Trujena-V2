@@ -17,9 +17,10 @@ export default defineConfig({
     retries: 0,                     // no retry: a retry would try to change a status that already changed
 
     reporter: [
-        ['list'],
-        ['./reporters/summaryReporter.ts'],          // PASSED / FAILED / SKIPPED at the end of the run (in the terminal)
-        ['html', { open: 'always' }],                // the report opens in the browser after the run
+        // the terminal shows the FAILED tests only (with their APIs). the passed tests are in the HTML report
+        ['./reporters/summaryReporter.ts'],
+        // the report opens in the browser after the run (NOT on GitHub: there is no browser to open it)
+        ['html', { open: process.env.CI ? 'never' : 'always' }],
         ['allure-playwright', { resultsDir: 'allure-results' }],
     ],
 

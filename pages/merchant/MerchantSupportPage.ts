@@ -82,6 +82,24 @@ export class MerchantSupportPage {
         });
     }
 
+    // بيبعت الرسالة، ولو السيرفر رفض (قاعدة الـ 5 دقايق: فيه رسالة اتبعتت من شوية)
+    // بيستنى دقيقة ويحاول تاني (لحد 6 مرات = حوالي 6 دقايق)، بدل ما التست يفشل
+    // التست اللي بيستخدمها محتاج وقت أطول: test.setTimeout(supportWaitTimeout)
+    async sendWhenAllowed(data: { name: string; phone: string; email: string; type: string; message: string }): Promise<Response> {
+        let response!: Response;
+        for (let attempt = 1; attempt <= 6; attempt++) {
+            await this.open();
+            await this.fillRequest(data);
+            response = await this.send();
+            // SEEN on stg: قاعدة الـ 5 دقايق = 429 "You can only send one support message every 5 minutes"
+            // أي رد تاني (نجاح أو error تاني) بيرجع على طول
+            if (response.status() !== 429) return response;
+            console.log(`support: 429 (the 5 minutes rule), waiting 1 minute (attempt ${attempt}/6)`);
+            await this.page.waitForTimeout(60000);
+        }
+        return response;
+    }
+
     //-------------------Assertions-------------------
     // business rule: name, phone and email are filled with the registration data (the merchant can change them)
     // بيتأكد إن البيانات متملية من التسجيل

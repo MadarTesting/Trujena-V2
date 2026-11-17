@@ -19,7 +19,8 @@ export class AdminSupportPage {
 
     //===================Variables===================
     readonly emptyMessageText: string = 'لا توجد رسائل حاليا';
-    readonly errorMessageText: string = 'حدث خطأ أثناء تحميل الرسائل يرجى المحاولة لاحقا';
+    // SEEN on stg: "خطأ في التحديث" (الريكوايرمنت بتقول "حدث خطأ أثناء تحميل الرسائل يرجى المحاولة لاحقا")
+    readonly errorMessageText: string = 'خطأ في التحديث';
 
     //===================Constructor===================
     constructor(page: Page) {

@@ -2,12 +2,14 @@ import type { Page, Response, TestInfo } from '@playwright/test';
 
 // prints every API call that SENDS data (POST / PUT / PATCH / DELETE) in the terminal:
 // the request, the status code, the payload and the preview (the response), each one in its own part.
-// to turn it off: API_LOG=no
+// by default NOTHING is printed while the tests run: the APIs are printed only under the FAILED tests (summary).
+// to print every API that sends data while the tests run: API_LOG=yes
 
 const SKIP_URLS = ['/api/auth/session', '/api/auth/_log'];   // the website calls them all the time
 const SECRET_KEYS = /password|token|csrf/i;                  // never print passwords or tokens (payload)
 const RESPONSE_SECRET_KEYS = /token|csrf/i;                 // the response: hide tokens only, so the error messages are shown
 const MAX_LENGTH = 2000;                                     // a long text is cut after this
+const FAILED_TEST_CALLS = 15;                                // التست الفاشل: بيطبع آخر 15 API بس
 
 const ACTIONS: Record<string, string> = { POST: 'CREATE', PUT: 'UPDATE', PATCH: 'UPDATE', DELETE: 'DELETE' };
 
@@ -21,7 +23,8 @@ export function apiCallsOf(page: Page): ApiCall[] {
 }
 
 //===================Start listening on a page===================
-// بيسمع على كل API بيبعت داتا (أو رجع error) ويسجله ويطبعه
+// بيسمع على كل API ويسجله (عشان يتطبع لو التست فشل)
+// اللي بيبعت داتا (POST / PUT / PATCH / DELETE) بيتطبع كمان وقت ما يحصل، الـ GET بيتطبع بس لو التست فشل
 export function logApiCalls(page: Page) {
     const calls: ApiCall[] = [];
     savedCalls.set(page, calls);
@@ -30,13 +33,13 @@ export function logApiCalls(page: Page) {
         const request = response.request();
         const url = request.url();
         if (!url.includes('/api/') || SKIP_URLS.some(skip => url.includes(skip))) return;
-        const isError = response.status() >= 400;
-        if (request.method() === 'GET' && !isError) return;      // GET بيتسجل بس لو رجع error
+        // stream (زي notifications/stream) مش بيخلص، فمينفعش نقرا الرد بتاعه
+        if ((response.headers()['content-type'] ?? '').includes('event-stream')) return;
 
         try {
             const text = await buildLog(response);
             calls.push({ status: response.status(), text });
-            if (process.env.API_LOG !== 'no' && request.method() !== 'GET') console.log(text);
+            if (process.env.API_LOG === 'yes' && request.method() !== 'GET') console.log(text);
         } catch {
             // the page was closed before the response was read: nothing to save
         }
@@ -44,18 +47,25 @@ export function logApiCalls(page: Page) {
 }
 
 //===================For the report (failed tests only)===================
-// بيحدد الفشل Frontend ولا Backend، وبيحط كل الـ APIs (الـ payload والـ status والـ preview) في التقرير
-// القاعدة: لو أي API رجع error (400 أو أكتر) = Backend، لو كلها نجحت = Frontend (مشكلة في الصفحة نفسها)
+// بيحدد نوع الفشل، وبيحط آخر الـ APIs (الـ status والـ payload والـ preview) في التقرير وفي الترمنال
+// القاعدة: لو أي API رجع error (400 أو أكتر) = Backend
+// لو كلها رجعت OK: يا مشكلة في الصفحة، يا السيرفر رجع داتا غلط أو ناقصة (بص على الـ PREVIEW)
 export async function attachFailureInfo(page: Page, testInfo: TestInfo, name: string) {
     const calls = apiCallsOf(page);
     const errors = calls.filter(call => call.status >= 400);
     const failureType = errors.length
         ? `BACKEND: the server returned an error (${errors.map(call => call.status).join(', ')})`
-        : 'FRONTEND: all the API calls were OK, the problem is in the page (a text, a button or an element)';
+        : 'FRONTEND or BACKEND DATA: all the API calls returned OK (check the page, or the data in the PREVIEW below)';
 
+    const lastCalls = calls.slice(-FAILED_TEST_CALLS);
+    const skipped = calls.length - lastCalls.length;
     testInfo.annotations.push({ type: `Failure type (${name})`, description: failureType });
     await testInfo.attach(`${name}-api-calls`, {
-        body: `${failureType}\n${calls.map(call => call.text).join('\n') || '\n(no API call sent data or returned an error)'}`,
+        body: [
+            failureType,
+            skipped ? `(the last ${lastCalls.length} API calls only, ${skipped} older calls are not shown)` : '',
+            lastCalls.map(call => call.text).join('\n') || '(no API calls)',
+        ].filter(Boolean).join('\n'),
         contentType: 'text/plain',
     });
 }

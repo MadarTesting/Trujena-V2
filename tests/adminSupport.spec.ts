@@ -4,12 +4,11 @@ import data from '../testData/adminSupport';
 // admin > الدعم والتواصل (requirements/AdminSupportPage.md = UC-10)
 // التاجر بيبعت رسالة دعم جديدة كل run، والأدمن بيغيّر حالة الرسالة دي بس (الرسايل التانية محمية)
 
-// ⚠️ ملاحظة مهمة: التاجر مسموحله رسالة واحدة كل 5 دقايق.
-// لو شغلت الملف تاني قبل ما الـ 5 دقايق تعدّي، الإرسال بيفشل وكل التستات اللي بعده بتفشل معاه.
-// نفس القاعدة بتنطبق لو شغلت support.spec.ts قبله. الحل: استنى 5 دقايق وشغّل تاني.
-const fiveMinutesNote = 'ملاحظة مهمة: التاجر مسموحله رسالة واحدة كل 5 دقايق. '
-    + 'لو شغلت الملف تاني قبل ما الـ 5 دقايق تعدّي، الإرسال بيفشل وكل التستات اللي بعده بتفشل معاه. '
-    + 'نفس القاعدة بتنطبق لو شغلت support.spec.ts قبله. الحل: استنى 5 دقايق وشغّل تاني';
+// ملاحظة: التاجر مسموحله رسالة واحدة كل 5 دقايق.
+// لو فيه رسالة اتبعتت من أقل من 5 دقايق (run قبله أو support.spec.ts)، أول تست بيستنى ويحاول تاني كل دقيقة
+// (لحد 6 دقايق)، فالـ run بياخد وقت أطول بس ما بيفشلش
+const fiveMinutesNote = 'التاجر مسموحله رسالة واحدة كل 5 دقايق، والإرسال فشل حتى بعد الانتظار. '
+    + 'بص على رد السيرفر في الـ API تحت التست';
 
 const message = data.message;
 
@@ -17,13 +16,12 @@ const message = data.message;
 // بيشتغلوا بالترتيب (workers: 1)، ولو تست فشل اللي بعده بيكمل
 test.describe('Admin - support: a message from the merchant', { tag: '@adminSupport' }, () => {
 
-    // التاجر بيبعت رسالة دعم (مسموح رسالة واحدة كل 5 دقايق)
+    // التاجر بيبعت رسالة دعم (مسموح رسالة واحدة كل 5 دقايق: لو اترفضت بيستنى ويحاول تاني)
     test('[Positive] the merchant sends a support message', async ({ merchantPO }) => {
+        test.setTimeout(8 * 60000);                              // ممكن يستنى لحد 6 دقايق
         const support = merchantPO.getMerchantSupportPage();
 
-        await support.open();
-        await support.fillRequest(message);
-        const response = await support.send();
+        const response = await support.sendWhenAllowed(message);
         expect(response.ok(), `${fiveMinutesNote} (status ${response.status()})`).toBeTruthy();
     });
 

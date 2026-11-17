@@ -148,8 +148,15 @@ export class MerchantNotificationsPage {
 
     // IMPORTANT: this SENDS a real push notification to all the users of the app (max 1 every 4 hours)
     // بيدوس "إرسال الإشعار"
+    // SEEN on stg: the first answer only CREATES the notification, then the site keeps sending it.
+    // if the test leaves the page before that, the notification stays a draft,
+    // so we wait until the site goes back to the notifications list by itself
     async send(): Promise<Response> {
-        return await this.clickAndWaitForServer(this.Send_btn);
+        const response = await this.clickAndWaitForServer(this.Send_btn);
+        if (response.ok()) {
+            await expect(this.page).toHaveURL(new RegExp(`${paths.notificationsPath}$`), { timeout: 30000 });
+        }
+        return response;
     }
 
     //-------------------Assertions-------------------

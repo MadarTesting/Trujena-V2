@@ -1,0 +1,43 @@
+# تشغيل التستات أوتوماتيك على GitHub
+# بيشتغل لما تدوس "Run workflow" في تاب Actions على GitHub
+# (مش مع كل push: التستات بتغيّر داتا على staging وبتبعت إشعارات حقيقية، وبتاخد وقت طويل)
+name: Playwright Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tests:
+        description: 'التستات اللي تتشغل (مثلا: tests/support.spec.ts) - سيبها فاضية لكل التستات'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      # 1. بيجيب الكود من الريبو
+      - uses: actions/checkout@v4
+
+      # 2. بيسطب Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 3. بيسطب الـ packages (من package-lock.json)
+      - run: npm ci
+
+      # 4. بيسطب Google Chrome (التستات بتستخدم channel: 'chrome')
+      - run: npx playwright install --with-deps chrome
+
+      # 5. بيشغّل التستات (الإيميلات والباسوردات من ملف .env اللي في الريبو)
+      - run: npx playwright test ${{ github.event.inputs.tests }}
+
+      # 6. بيرفع الريبورت (الصور والفيديوهات) عشان تنزّله من صفحة الـ run
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

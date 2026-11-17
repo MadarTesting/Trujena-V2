@@ -133,6 +133,12 @@ export class AdminUsersPage {
         allowed.id = (await this.row(user.email).locator('td').first().innerText()).trim();
     }
 
+    // رقم مستخدم التست (الرقم التسلسلي)، وهو اللي بيتكتب في سجل النشاطات: "(المُعرّف: 105)"
+    async getTestUserId(user: TestUser) {
+        await this.findTestUser(user);
+        return allowed.id.replace(/\D/g, '');
+    }
+
     // بيفتح صفحة عرض مستخدم التست (بالضغط على اسمه)
     async openView(user: TestUser) {
         await this.findTestUser(user);

@@ -13,6 +13,7 @@ export class MerchantDesignSettingsPage {
     readonly defaultDesign_btn: Locator;
     readonly splashImage_file: Locator;
     readonly toast: Locator;
+    readonly previewStart_btn: Locator;
 
     //===================Variables===================
     readonly savedMessage: string = 'تم حفظ التغييرات بنجاح';     // SEEN on stg
@@ -42,6 +43,9 @@ export class MerchantDesignSettingsPage {
         this.splashImage_file = this.main.locator('input[type="file"][accept*="image"]');
         // SEEN on stg: the messages after save are toasts (sonner)
         this.toast = page.locator('[data-sonner-toast]').last();
+        // SEEN on stg: the "معاينة مباشرة" phone has a "بدء" button:
+        // its background = "لون الخلفية" and its text = "لون الأيقونات" (it changes before save)
+        this.previewStart_btn = page.getByText('بدء', { exact: true }).filter({ visible: true }).first();
     }
 
     //===================Methods===================
@@ -175,6 +179,26 @@ export class MerchantDesignSettingsPage {
         return response;
     }
 
+    // Alternative 1: السيرفر يرجع error في الحفظ (من غير ما حاجة تتحفظ)
+    async makeSaveFail() {
+        await this.page.route('**/app-config/**', route =>
+            route.request().method() === 'GET' ? route.continue() : route.fulfill({ status: 500, body: '{}' }));
+    }
+
+    // بيملى كل الخانات المطلوبة للحفظ (الألوان + الأيقونات + لينكات القايمة الجانبية)
+    async fillRequired(colors: { backgroundColor: string; iconsColor: string },
+        icons: { picker: number; key: string; name: string }[], storeLink: string) {
+        await this.openTab(this.tabs.colors);
+        await this.setColor(this.colorLabels.background, colors.backgroundColor);
+        await this.setColor(this.colorLabels.icons, colors.iconsColor);
+        await this.openTab(this.tabs.navigation);
+        for (const icon of icons) {
+            await this.setIcon(icon.picker, icon.key, icon.name, storeLink);
+        }
+        await this.openTab(this.tabs.sideMenu);
+        await this.setAllSideMenuLinks(storeLink);     // the default links (example2.com) are rejected
+    }
+
     // بيعمل reload للصفحة
     async reload() {
         await this.page.reload();
@@ -185,6 +209,13 @@ export class MerchantDesignSettingsPage {
     // بيتأكد إن الحفظ فشل
     async assertSaveFailed() {
         await expect(this.toast).toContainText(this.failedMessage);
+    }
+
+    // المعاينة المباشرة: زرار "بدء" بياخد لون الخلفية ولون الأيقونات
+    async assertPreviewColors(backgroundHex: string, iconsHex: string) {
+        // SEEN on stg: "بدء" is a <p> inside the button box: the box has the background, the text has the icons color
+        await expect(this.previewStart_btn.locator('..')).toHaveCSS('background-color', hexToRgb(backgroundHex));
+        await expect(this.previewStart_btn).toHaveCSS('color', hexToRgb(iconsHex));
     }
 
     // بيتأكد من اللون
@@ -209,4 +240,10 @@ export class MerchantDesignSettingsPage {
         await expect(this.sideMenuName(index)).toHaveValue(name);
         await expect(this.sideMenuLink(index)).toHaveValue(link);
     }
+}
+
+// "#FF0000" -> "rgb(255, 0, 0)" (زي ما المتصفح بيكتب اللون)
+function hexToRgb(hex: string) {
+    const value = parseInt(hex.replace('#', ''), 16);
+    return `rgb(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255})`;
 }

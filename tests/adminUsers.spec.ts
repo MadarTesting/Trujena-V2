@@ -8,6 +8,7 @@ import data from '../testData/adminUsers';
 // المستخدمين الموجودين محميين: مفيش أي تغيير بيتبعت عليهم
 
 const user = data.user;
+let userId = '';        // رقم مستخدم التست (بيتقرا قبل الحذف، وبيتدوّر عليه في سجل النشاطات)
 
 // بيحاول يعمل دخول على لوحة الأدمن بمستخدم التست في متصفح جديد، ويرجّع اتعمل ولا لا
 async function canLogin(browser: Browser, testInfo: TestInfo, email: string, password: string) {
@@ -153,6 +154,7 @@ test.describe('Admin - users: the test user', { tag: '@adminUsers' }, () => {
     test('[Positive] delete the user', async ({ adminPO }) => {
         const users = adminPO.getAdminUsersPage();
 
+        userId = await users.getTestUserId(user);                 // عشان نلاقيه في سجل النشاطات بعد الحذف
         const response = await users.deleteUser(user);
         expect(response.ok()).toBeTruthy();
 
@@ -162,11 +164,16 @@ test.describe('Admin - users: the test user', { tag: '@adminUsers' }, () => {
     });
 
     // business rule: عمليات المستخدم بتفضل في سجل النشاطات بعد حذفه
+    // SEEN on stg: السجل بيكتب رقم المستخدم مش اسمه: "تم حذف المسؤول (المُعرّف: 105)" و "تم تحديث المسؤول (المُعرّف: 105)"
     test('[Positive] business rule: the activity log keeps the user operations after delete', async ({ adminPO }) => {
+        expect(userId, 'the delete test did not run, so the user number is not known').not.toBe('');
         const log = adminPO.getAdminActivityLogPage();
 
         await log.open();
-        await expect(log.main).toContainText(user.email.split('@')[0]);
+        for (const operation of ['حذف المسؤول', 'تحديث المسؤول']) {
+            await expect(log.main.getByText(new RegExp(`${operation}.*: ${userId}\\)`)).first(),
+                `the log must have "${operation}" for user ${userId}`).toBeVisible();
+        }
     });
 });
 

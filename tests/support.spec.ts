@@ -1,8 +1,9 @@
 import { test, expect } from '../fixtures/fixtures';
 import supportData from '../testData/support';
 
-// merchant > الدعم والتواصل
+// merchant > الدعم والتواصل (requirements/MerchantSupportPage.md)
 // the merchant is already logged in (global setup), every test starts from the dashboard
+// SEEN on stg: نوع الطلب عند التاجر "استفسار / شكوى" (الريكوايرمنت: "استفسار / مشكلة")
 
 //===================Test Cases===================
 // تستات الدعم والتواصل (من غير إرسال)
@@ -62,18 +63,17 @@ test.describe('Merchant - support', { tag: '@support' }, () => {
 
 //===================Send===================
 // IMPORTANT: these tests SEND a real support request to the admin ("طلبات الدعم الفني"),
-// and the website allows only 1 request every 5 minutes, so wait 5 minutes before running them again
+// and the website allows only 1 request every 5 minutes (the first test waits by itself if needed)
 // إرسال طلب دعم حقيقي
 test.describe('Merchant - support: send', { tag: '@support' }, () => {
     test.describe.configure({ mode: 'serial' });
 
     // إرسال طلب: بتظهر رسالة إن الطلب وصل
     test('[Positive] send a request: the merchant is told it is received', async ({ merchantPO }) => {
+        test.setTimeout(8 * 60000);                              // لو فيه رسالة من أقل من 5 دقايق، بيستنى لحد 6 دقايق
         const support = merchantPO.getMerchantSupportPage();
 
-        await support.open();
-        await support.fillRequest(supportData.request);
-        const response = await support.send();
+        const response = await support.sendWhenAllowed(supportData.request);
         expect(response.ok(), `send failed with status ${response.status()}: ${await response.text()}`).toBeTruthy();
         await expect(support.toast).toBeVisible();                           // post condition: the merchant is told
     });
@@ -88,7 +88,16 @@ test.describe('Merchant - support: send', { tag: '@support' }, () => {
         expect(response.ok(), 'the second request must be rejected').toBeFalsy();
     });
 
-    // ADJUST: the admin page "طلبات الدعم الفني" was not seen yet (the admin login did not work on 10-11-2026)
-    // الأدمن يشوف الطلب في "طلبات الدعم الفني" (مقفول)
-    test.fixme('[Positive] the admin sees the request in "طلبات الدعم الفني"', async () => {});
+    // Main flow 5: الطلب بيوصل للأدمن في "طلبات الدعم الفني" بالبيانات اللي التاجر غيّرها
+    // business rule: الاسم والإيميل والهاتف متعبيين من التسجيل، والتاجر غيّرهم (والأدمن بيشوف الجديد)
+    test('[Positive] the admin sees the request with the data the merchant wrote', async ({ adminPO }) => {
+        const support = adminPO.getAdminSupportPage();
+        const request = supportData.request;
+
+        await support.open();
+        await support.search(request.name);
+        for (const text of [request.name, request.phone, request.type]) {
+            await support.assertFirstRowHas(text);
+        }
+    });
 });

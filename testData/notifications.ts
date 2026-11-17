@@ -29,6 +29,7 @@ export default {
         message: `QA عرض خاص للاختبار ${runId}`,
         validity: '24 ساعة',
     },
+    emptyListText: 'لا توجد بيانات متاحة',       // SEEN on stg: the table row when the list is empty
     errors: {
         // SEEN on stg: an EMPTY title shows the min length message (not "required")
         titleMinLength: 'عنوان الإشعار يجب أن يكون 5 أحرف على الأقل',
