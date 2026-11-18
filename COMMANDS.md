@@ -12,9 +12,48 @@
 
 ---
 
-## كل التستات
+## كل التستات (UI + API)
 ```
-npx playwright test --headed
+npx playwright test
+```
+
+## تستات الـ UI بس (المتصفح)
+```
+npx playwright test --project=chromium --headed
+```
+
+## تستات الـ API بس (من غير متصفح، فمفيش --headed)
+```
+npm run test:api
+npm run test:api:auth        الدخول والخروج والملف الشخصي
+npm run test:api:admin       كل endpoints الأدمن
+npm run test:api:merchant    كل endpoints التاجر
+```
+
+### API: ملف واحد
+```
+npx playwright test api/tests/auth/Login.api.spec.ts
+npx playwright test api/tests/admin/AdminActivityLogs.api.spec.ts
+npx playwright test api/tests/admin/AdminAppRequests.api.spec.ts
+npx playwright test api/tests/admin/AdminDashboard.api.spec.ts
+npx playwright test api/tests/admin/AdminMerchants.api.spec.ts
+npx playwright test api/tests/admin/AdminNotifications.api.spec.ts
+npx playwright test api/tests/admin/AdminRoles.api.spec.ts
+npx playwright test api/tests/admin/AdminSupport.api.spec.ts
+npx playwright test api/tests/admin/AdminUsers.api.spec.ts
+npx playwright test api/tests/merchant/MerchantAdvertisements.api.spec.ts
+npx playwright test api/tests/merchant/MerchantAppConfig.api.spec.ts
+npx playwright test api/tests/merchant/MerchantAppRequest.api.spec.ts
+npx playwright test api/tests/merchant/MerchantDashboard.api.spec.ts
+npx playwright test api/tests/merchant/MerchantNotifications.api.spec.ts
+npx playwright test api/tests/merchant/MerchantPushNotifications.api.spec.ts
+npx playwright test api/tests/merchant/MerchantSubscription.api.spec.ts
+```
+
+### API: كل ملفات الأدمن / كل ملفات التاجر
+```
+npx playwright test api/tests/admin
+npx playwright test api/tests/merchant
 ```
 
 ## الدخول (login)
@@ -149,7 +188,7 @@ npx playwright test ui/tests/profile.spec.ts --headed -g "wrong current password
 
 ### تشغيل تست واحد بس (برقم السطر بتاعه في الملف)
 ```
-npx playwright test ui/tests/logout.spec.ts:32 --headed
+npx playwright test ui/tests/logout.spec.ts:50 --headed
 ```
 
 ### إعادة التستات اللي فشلت في آخر run بس

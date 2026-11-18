@@ -27,7 +27,10 @@
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report",
     "test:api": "playwright test --project=api",
-    "test:ui": "playwright test --project=chromium"
+    "test:ui": "playwright test --project=chromium",
+    "test:api:auth": "playwright test api/tests/auth",
+    "test:api:admin": "playwright test api/tests/admin",
+    "test:api:merchant": "playwright test api/tests/merchant"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
