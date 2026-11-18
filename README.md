@@ -26,7 +26,7 @@
 **أسرع طريقة تشغّل بيها:**
 ```
 npm install
-npx playwright test tests/support.spec.ts --headed
+npx playwright test ui/tests/support.spec.ts --headed
 ```
 (قبلها اكتب الإيميلات والباسوردات في `.env`، الخطوات تحت. وكل أوامر التشغيل في `COMMANDS.md`.)
 
@@ -72,7 +72,7 @@ npm run test:headed            كل التستات والمتصفح ظاهر
 
 عشان تشغّل ملف واحد والمتصفح ظاهر:
 ```
-npx playwright test tests/profile.spec.ts --headed
+npx playwright test ui/tests/profile.spec.ts --headed
 ```
 
 ### التقارير
@@ -88,8 +88,8 @@ npm run allure:open          يفتح تقرير Allure
 ## 3. شكل المشروع
 ```
 trujina-automation-v2/
-├── tests/                  التستات (ملف لكل موديول)
-├── pages/                  الـ Page Objects (كل صفحة ليها ملف فيه الـ locators والـ methods)
+├── ui/tests/                  التستات (ملف لكل موديول)
+├── ui/pages/                  الـ Page Objects (كل صفحة ليها ملف فيه الـ locators والـ methods)
 │   ├── POManager.ts        بيجمع كل الصفحات في مكان واحد
 │   ├── auth/               صفحة الدخول (مشتركة بين التاجر والأدمن)
 │   ├── admin/              صفحات الأدمن
@@ -109,8 +109,8 @@ trujina-automation-v2/
 
 | الملف | مكانه | مثال |
 |---|---|---|
-| الصفحة (locators + methods) | `pages/merchant/` | `MerchantProfilePage.ts` |
-| التستات | `tests/` | `profile.spec.ts` |
+| الصفحة (locators + methods) | `ui/pages/merchant/` | `MerchantProfilePage.ts` |
+| التستات | `ui/tests/` | `profile.spec.ts` |
 | الداتا | `testData/` | `profile.ts` |
 
 ولو الموديول ليه ريكوايرمنت بتبقى في `requirements/` بنفس اسم الصفحة، زي `MerchantProfilePage.md`.
@@ -177,7 +177,7 @@ const profile = merchantPO.getMerchantProfilePage();
 
 مثال (في Git Bash):
 ```
-CHANGE_PASSWORD=yes npx playwright test tests/profile.spec.ts --headed
+CHANGE_PASSWORD=yes npx playwright test ui/tests/profile.spec.ts --headed
 ```
 
 > تستات إرسال الإشعار عند التاجر بتشتغل دايمًا: بتبعت إشعار حقيقي، والموقع بيسمح بإشعار واحد كل 4 ساعات.
@@ -187,8 +187,8 @@ CHANGE_PASSWORD=yes npx playwright test tests/profile.spec.ts --headed
 ## 6. الأفكار المستخدمة بلغة بسيطة
 | الاسم | يعني إيه | فين في المشروع |
 |---|---|---|
-| **POM** | كل صفحة ليها ملف فيه أزرارها والحاجات اللي بتتعمل فيها | `pages/` |
-| **POManager** | مكان واحد بيرجّعلك أي صفحة | `pages/POManager.ts` |
+| **POM** | كل صفحة ليها ملف فيه أزرارها والحاجات اللي بتتعمل فيها | `ui/pages/` |
+| **POManager** | مكان واحد بيرجّعلك أي صفحة | `ui/pages/POManager.ts` |
 | **Data-Driven** | الداتا في ملفات لوحدها، والتست بيلف عليها (لو عايز حالة جديدة تزودها في الداتا بس) | `testData/` |
 | **Fixtures** | `merchantPO` متصفح التاجر، `adminPO` متصفح الأدمن، `requestNumber` رقم الطلب | `fixtures/fixtures.ts` |
 | **Global Setup** | بيعمل لوجين مرة واحدة قبل كل التستات ويحفظ الجلسة | `global/global-setup.ts` |

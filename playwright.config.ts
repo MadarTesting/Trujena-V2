@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-    testDir: './tests',
+    testDir: './ui/tests',
 
     // runs ONE time before all tests: logs in and saves the sessions
     globalSetup: './global/global-setup.ts',
@@ -34,5 +34,7 @@ export default defineConfig({
         // channel 'chrome' = use the installed Google Chrome, because Windows Application Control
         // blocks the Chromium that Playwright downloads (ms-playwright\chromium-xxxx\chrome.dll)
         { name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'chrome', headless: true } },
+        // تستات الـ API (من غير متصفح): npx playwright test --project=api
+        { name: 'api', testDir: './api/tests' },
     ],
 });

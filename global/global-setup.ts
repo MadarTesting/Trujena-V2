@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { chromium, type Browser } from '@playwright/test';
-import { LoginPage } from '../pages/auth/LoginPage';
+import { LoginPage } from '../ui/pages/auth/LoginPage';
 import users from '../testData/users';
 import paths from '../testData/paths';
 

@@ -19,109 +19,109 @@ npx playwright test --headed
 
 ## الدخول (login)
 ```
-npx playwright test tests/login.spec.ts --headed
+npx playwright test ui/tests/login.spec.ts --headed
 ```
 
 ## رحلة الطلب (lifecycle)
 كل run الأدمن بيضيف **تاجر QA جديد** من إدارة العملاء (QA Lifecycle ...) وطلبه بيبدأ "جديد"، فتقدر تشغّله كل مرة.
 وبيضيف تاجر تاني (QA LcReject ...) لتست الرفض. الطلبات التانية محمية، ومفيش حاجة بتتمسح.
 ```
-npx playwright test tests/lifecycle.spec.ts --headed
+npx playwright test ui/tests/lifecycle.spec.ts --headed
 ```
 
 ## إعدادات التصميم
 ```
-npx playwright test tests/designSettings.spec.ts --headed
+npx playwright test ui/tests/designSettings.spec.ts --headed
 ```
 
 ## الإضافات والإعلانات
 ```
-npx playwright test tests/pluginsAds.spec.ts --headed
+npx playwright test ui/tests/pluginsAds.spec.ts --headed
 ```
 
 ## إدارة الإشعارات
 ```
-npx playwright test tests/notifications.spec.ts --headed
+npx playwright test ui/tests/notifications.spec.ts --headed
 ```
 
 ## الدعم والتواصل
 ```
-npx playwright test tests/support.spec.ts --headed
+npx playwright test ui/tests/support.spec.ts --headed
 ```
 
 ## اشتراكي
 ```
-npx playwright test tests/subscription.spec.ts --headed
+npx playwright test ui/tests/subscription.spec.ts --headed
 ```
 
 ## الملف الشخصي
 ```
-npx playwright test tests/profile.spec.ts --headed
+npx playwright test ui/tests/profile.spec.ts --headed
 ```
 
 ## تسجيل الخروج
 ```
-npx playwright test tests/logout.spec.ts --headed
+npx playwright test ui/tests/logout.spec.ts --headed
 ```
 
 ## إدارة العملاء (الأدمن)
 ```
-npx playwright test tests/adminCustomers.spec.ts --headed
+npx playwright test ui/tests/adminCustomers.spec.ts --headed
 ```
 
 ## إدارة الطلبات (الأدمن)
 بيغيّر حالة طلب عميل التست بس (الطلبات التانية محمية).
 ```
-npx playwright test tests/adminOrders.spec.ts --headed
+npx playwright test ui/tests/adminOrders.spec.ts --headed
 ```
 
 ## إدارة الإشعارات (الأدمن)
 بيبعت إشعار للتاجر بتاع التست بس (QA Customer 853019 edited) ويشوفه عنده في أيقونة الإشعارات.
 ```
-npx playwright test tests/adminNotifications.spec.ts --headed
+npx playwright test ui/tests/adminNotifications.spec.ts --headed
 ```
 
 ## الدعم والتواصل (الأدمن)
 التاجر بيبعت **رسالة دعم جديدة** كل run، والأدمن بيغيّر حالة الرسالة دي بس لـ "تم الاطلاع" (الرسايل التانية محمية).
 التاجر مسموحله رسالة واحدة كل 5 دقايق: لو شغّلته تاني بسرعة، أول تست بيستنى ويحاول كل دقيقة (لحد 6 دقايق) وبعدين يكمل عادي.
 ```
-npx playwright test tests/adminSupport.spec.ts --headed
+npx playwright test ui/tests/adminSupport.spec.ts --headed
 ```
 
 ## إدارة المستخدمين (الأدمن)
 بيعمل **مستخدم تست جديد** كل run (QA User ...) ويجرب عليه (دخول، تغيير باسورد، تعطيل) ويمسحه في الآخر. المستخدمين التانيين محميين.
 ```
-npx playwright test tests/adminUsers.spec.ts --headed
+npx playwright test ui/tests/adminUsers.spec.ts --headed
 ```
 
 ## الأدوار والصلاحيات (الأدمن)
 بيعمل **دور تست جديد** كل run (QA Role ...) ويجرب عليه ويمسحه في الآخر. الأدوار التانية محمية ومحدش بيتغير.
 ```
-npx playwright test tests/adminRoles.spec.ts --headed
+npx playwright test ui/tests/adminRoles.spec.ts --headed
 ```
 
 ## سجل النشاطات (الأدمن)
 عرض بس: بيقرا السجل ويجرب البحث والفلاتر، ومش بيغير أي حاجة.
 ```
-npx playwright test tests/adminActivityLog.spec.ts --headed
+npx playwright test ui/tests/adminActivityLog.spec.ts --headed
 ```
 
 ## الملف الشخصي (الأدمن)
 عرض بس: بيفتح الصفحة والنوافذ ويقفلها من غير حفظ. أي طلب بيغيّر داتا بيتقفل، فالاسم والباسورد والإيميل زي ما هم.
 ```
-npx playwright test tests/adminProfile.spec.ts --headed
+npx playwright test ui/tests/adminProfile.spec.ts --headed
 ```
 
 ## تسجيل الخروج (الأدمن)
 كل تست بيعمل دخول جديد في متصفح لوحده ويخرج منه، فالجلسة المحفوظة للتستات التانية ما بتتأثرش. مفيش داتا بتتغير.
 ```
-npx playwright test tests/adminLogout.spec.ts --headed
+npx playwright test ui/tests/adminLogout.spec.ts --headed
 ```
 
 ## إضافة عميل وتجربة السيناريوهات عليه (الأدمن)
 ⚠️ كل run بيضيف **عميل QA جديد** في الداشبورد (العملاء التانيين محميين ومحدش بيتغير).
 ```
-npx playwright test tests/adminAddCustomer.spec.ts --headed
+npx playwright test ui/tests/adminAddCustomer.spec.ts --headed
 ```
 
 ---
@@ -131,11 +131,11 @@ npx playwright test tests/adminAddCustomer.spec.ts --headed
 ### تغيير باسورد التاجر فعلًا
 PowerShell:
 ```
-$env:CHANGE_PASSWORD="yes"; npx playwright test tests/profile.spec.ts --headed; Remove-Item Env:CHANGE_PASSWORD
+$env:CHANGE_PASSWORD="yes"; npx playwright test ui/tests/profile.spec.ts --headed; Remove-Item Env:CHANGE_PASSWORD
 ```
 Git Bash:
 ```
-CHANGE_PASSWORD=yes npx playwright test tests/profile.spec.ts --headed
+CHANGE_PASSWORD=yes npx playwright test ui/tests/profile.spec.ts --headed
 ```
 
 ---
@@ -144,12 +144,12 @@ CHANGE_PASSWORD=yes npx playwright test tests/profile.spec.ts --headed
 
 ### تشغيل تست واحد بس (بجزء من اسمه)
 ```
-npx playwright test tests/profile.spec.ts --headed -g "wrong current password"
+npx playwright test ui/tests/profile.spec.ts --headed -g "wrong current password"
 ```
 
 ### تشغيل تست واحد بس (برقم السطر بتاعه في الملف)
 ```
-npx playwright test tests/logout.spec.ts:32 --headed
+npx playwright test ui/tests/logout.spec.ts:32 --headed
 ```
 
 ### إعادة التستات اللي فشلت في آخر run بس

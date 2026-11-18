@@ -1,6 +1,6 @@
 import { test as base, type Browser, type BrowserContext, type Page, type TestInfo } from '@playwright/test';
-import { POManager } from '../pages/POManager';
-import { LoginPage } from '../pages/auth/LoginPage';
+import { POManager } from '../ui/pages/POManager';
+import { LoginPage } from '../ui/pages/auth/LoginPage';
 import { logApiCalls, attachFailureInfo } from '../utils/apiLogger';
 import paths from '../testData/paths';
 import users from '../testData/users';

@@ -7,5 +7,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["global", "fixtures", "pages", "tests", "testData", "playwright.config.ts"]
+  "include": ["ui", "api", "global", "fixtures", "testData", "utils", "reporters", "playwright.config.ts"]
 }

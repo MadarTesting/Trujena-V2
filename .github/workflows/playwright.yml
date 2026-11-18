@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tests:
-        description: 'التستات اللي تتشغل (مثلا: tests/support.spec.ts) - سيبها فاضية لكل التستات'
+        description: 'التستات اللي تتشغل (مثلا: ui/tests/support.spec.ts) - سيبها فاضية لكل التستات'
         required: false
         default: ''
 
